@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>edu.udel.irl</groupId>
+    <artifactId>irons</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>irons</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>it.uniroma1.lcl.babelnet</groupId>
+            <artifactId>babelnet-api</artifactId>
+            <version>3.7.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>it.uniroma1.lcl.babelfy.commons</groupId>
+            <artifactId>babelfy-commons</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/babelfy-commons-1.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>it.uniroma1.lcl.babelfy</groupId>
+            <artifactId>babelfy-online</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/babelfy-online-1.0.jar</systemPath>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>it.uniroma1.lcl.jlt</groupId>-->
+        <!--<artifactId>lcl-jlt</artifactId>-->
+        <!--<version>2.4</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>com.babelscape</groupId>-->
+        <!--<artifactId>babelscape-data-commons</artifactId>-->
+        <!--<version>1.0</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lucene-queries</artifactId>
+                    <groupId>org.apache.lucene</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.1</version>
+            <classifier>models</classifier>
+        </dependency>
+        <dependency>
+            <groupId>adw.feb2015</groupId>
+            <artifactId>adw.feb2015</artifactId>
+            <version>1.0.0-feb2015</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/adw.feb2015.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>javaplex</groupId>
+            <artifactId>javaplex</artifactId>
+            <version>4.3.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/javaplex.jar</systemPath>
+        </dependency>
+
+
+    </dependencies>
+</project>
