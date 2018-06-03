@@ -3,6 +3,7 @@ package edu.udel.irl.irons.core;
 import edu.stanford.math.plex4.homology.barcodes.AnnotatedBarcodeCollection;
 import edu.udel.irl.irons.IronsConfiguration;
 import edu.udel.irl.irons.mani.Plex;
+import gnu.trove.impl.sync.TSynchronizedObjectDoubleMap;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -41,45 +42,45 @@ public class IroNet {
         this.plex = new Plex();
     }
 
-    public void addNode(IroNode node){
+    public synchronized void addNode(IroNode node){
         this.graph.addVertex(node.getNodeID());
         this.nodeList.put(node.getNodeID(), node);
         this.plex.addVertex(node.getNodeID());
     }
 
     //for test purpose only
-    public void addNode(int nodeId){
+    public synchronized void addNode(int nodeId){
         this.graph.addVertex(nodeId);
         this.plex.addVertex(nodeId);
         this.nodeList.put(nodeId, new IroNode(null, 0, null, false));
     }
 
     //All remove methods are not tested and may not be used in the future, just as the in case solution.
-    public void removeNode(IroNode node){
+    public synchronized void removeNode(IroNode node){
         this.nodeList.remove(node.getNodeID());
         this.graph.removeVertex(node.getNodeID());
     }
 
     //for test purpose only
-    public void removeNode(int nodeID){
+    public synchronized void removeNode(int nodeID){
         this.graph.removeVertex(nodeID);
         this.nodeList.remove(nodeID);
     }
 
-    public void addEdge(int node1Id, int node2Id, double weight){
+    public synchronized void addEdge(int node1Id, int node2Id, double weight){
         this.edgeList.putIfAbsent(new TIntHashSet(new int[]{node1Id, node2Id}), weight);
         this.graph.setEdgeWeight(this.graph.addEdge(node1Id, node2Id), weight);
         this.plex.addElement(node1Id, node2Id, weight);
     }
 
-    public void addEdge(IroNode node1, IroNode node2, double weight){
+    public synchronized void addEdge(IroNode node1, IroNode node2, double weight){
         this.edgeList.putIfAbsent(new TIntHashSet(new int[]{node1.getNodeID(), node2.getNodeID()}), weight);
         this.graph.setEdgeWeight(this.graph.addEdge(node1.getNodeID(), node2.getNodeID()), weight);
         this.plex.addElement(node1.getNodeID(), node2.getNodeID(),weight);
     }
 
     //for conventional coding, may never use.
-    public void removeEdge(int node1Id, int node2Id){
+    public synchronized void removeEdge(int node1Id, int node2Id){
         this.plex.removeElement(node1Id, node2Id);
         this.graph.removeEdge(node1Id, node2Id);
         this.edgeList.remove(new TIntHashSet(new int[]{node1Id, node2Id}));

@@ -13,15 +13,24 @@ import java.util.List;
  */
 public class CoinSaver {
 
+    private static CoinSaver instance = null;
+
     private static final File cacheFile = new File(IronsConfiguration.getInstance().getBabelfycache());
 
-    private TIntObjectHashMap<TIntObjectHashMap<List<String>>> wsdedSentences;
+    private volatile TIntObjectHashMap<TIntObjectHashMap<List<String>>> wsdedSentences;
 
-    public CoinSaver(){
+    public static synchronized CoinSaver getInstance(){
+        if (instance == null){
+            instance = new CoinSaver();
+        }
+        return instance;
+    }
+
+    private CoinSaver(){
         this.wsdedSentences = new TIntObjectHashMap<>();
     }
 
-    public void addSentSenses(IroNode node, TIntObjectHashMap<List<String>> sentSenses){
+    public synchronized void addSentSenses(IroNode node, TIntObjectHashMap<List<String>> sentSenses){
         this.wsdedSentences.putIfAbsent(node.getNodeID(), sentSenses);
     }
 

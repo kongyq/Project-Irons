@@ -37,7 +37,7 @@ public class IronsTest {
     @Test
     public void test() throws Exception{
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Irons irons = new Irons(8);
+        Irons irons = new Irons(5);
         this.readShortArticle(DATASET);
         for (Map.Entry<Integer, String> entry : this.shortArticles.entrySet()) {
             irons.addDocument(String.valueOf(entry.getKey()), entry.getValue());

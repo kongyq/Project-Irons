@@ -22,15 +22,18 @@ import java.util.stream.Collectors;
 
 /**
  * Created by mike on 4/23/18.
+ * Modified to singleton on 6/1/18.
  */
 public class BabelfyDisambiguator implements Disambiguator<SemanticGraph, TIntObjectHashMap> {
+
+    private static BabelfyDisambiguator instance = null;
 
     private Babelfy babelfy;
     private BabelfyParameters babelfyParameters;
 
     private BabelNet babelNet;
 
-    public BabelfyDisambiguator(){
+    private BabelfyDisambiguator(){
         this.babelfyParameters = new BabelfyParameters();
         this.babelfyParameters.setAnnotationResource(BabelfyParameters.SemanticAnnotationResource.WN);
         this.babelfyParameters.setMCS(BabelfyParameters.MCS.ON_WITH_STOPWORDS);
@@ -99,5 +102,12 @@ public class BabelfyDisambiguator implements Disambiguator<SemanticGraph, TIntOb
 //        System.out.println(wsdedSynsetList);
 
         return wsdedSynsetList;
+    }
+
+    public static BabelfyDisambiguator getInstance(){
+        if (instance == null){
+            instance = new BabelfyDisambiguator();
+        }
+        return instance;
     }
 }

@@ -2,6 +2,7 @@ package edu.udel.irl.irons;
 
 import edu.udel.irl.irons.core.IroNet;
 import edu.udel.irl.irons.core.IroNode;
+import edu.udel.irl.irons.mani.CoinSaver;
 import edu.udel.irl.irons.mani.CoreMani;
 import edu.udel.irl.irons.synsim.ADWSynsetSimilarity;
 import edu.udel.irl.irons.synsim.SynsetComparator;
@@ -11,6 +12,8 @@ import edu.udel.irl.irons.wsd.Disambiguator;
 import gnu.trove.iterator.TIntObjectIterator;
 
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by mike on 5/16/18.
@@ -25,9 +28,9 @@ public class Irons {
 
     public Irons(int k){
         this.iroNet = new IroNet(k);
-        Disambiguator disambiguator = new BabelfyDisambiguator();
-        SynsetComparator synsetComparator = new ADWSynsetSimilarity();
-        this.coreMani = new CoreMani(disambiguator, synsetComparator);
+//        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
+//        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
+//        this.coreMani = new CoreMani(disambiguator, synsetComparator);
     }
 
     public void addDocument(String docId, String content){
@@ -42,30 +45,55 @@ public class Irons {
 
     public void processing() throws Exception {
     //TODO: need to be parallelization
-        this.coreMani.readCache();
+
+        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
+        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
+
+        CoinSaver.getInstance().readFromFile();
+
+        ExecutorService executor = Executors.newFixedThreadPool(1);
 
         int numberOfNodes = this.iroNet.nodeList.size();
         for (int i = 1; i <= numberOfNodes; i ++){
             System.out.format("%d / %d%n", i, numberOfNodes);
             System.out.flush();
             for (int j = i + 1; j <= numberOfNodes; j ++){
-                double similarity = this.coreMani.computeEdgeWeight(
+                Runnable worker = new IronsWorker(
                         this.iroNet.nodeList.get(i),
-                        this.iroNet.nodeList.get(j));
+                        this.iroNet.nodeList.get(j),
+                        disambiguator,
+                        synsetComparator,
+                        this.iroNet,
+                        i,j);
 
-                // (sensitiveness * similarity) has to be great than or equal to 1.0
-                // then use reciprocal as their edge's filtration value.
-                double threshold = 1D / (this.sensitiveness * similarity);
-                if (threshold <= 1D){
-                    this.iroNet.addEdge(
-                            this.iroNet.nodeList.get(i),
-                            this.iroNet.nodeList.get(j),
-                            threshold);
-                }
+                executor.execute(worker);
+
+
+//                double similarity = this.coreMani.computeEdgeWeight(
+//                        this.iroNet.nodeList.get(i),
+//                        this.iroNet.nodeList.get(j));
+//
+//                // (sensitiveness * similarity) has to be great than or equal to 1.0
+//                // then use reciprocal as their edge's filtration value.
+//                double threshold = this.sensitiveness / similarity;
+////                double threshold = 1D / (this.sensitiveness * similarity);
+//                if (threshold <= 1D){
+//                    this.iroNet.addEdge(
+//                            this.iroNet.nodeList.get(i),
+//                            this.iroNet.nodeList.get(j),
+//                            threshold);
+//
+//                }
             }
         }
 
-        this.coreMani.saveCache();
+        executor.shutdown();
+
+        while (!executor.isTerminated()){
+            Thread.yield();
+        }
+
+        CoinSaver.getInstance().writeToFile();
 
         this.iroNet.finalizeIroNet();
     }

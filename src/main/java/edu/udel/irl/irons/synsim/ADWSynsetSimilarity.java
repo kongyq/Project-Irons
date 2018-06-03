@@ -10,12 +10,16 @@ import java.util.List;
 
 /**
  * Created by mike on 4/18/18.
+ * Modified to singleton on 6/1/18.
  */
 public class ADWSynsetSimilarity implements SynsetComparator<List<String>>{
+
+    private static ADWSynsetSimilarity instance = null;
+
     private ADW pipeline;
     private SignatureComparison measure;
 
-    public ADWSynsetSimilarity(){
+    private ADWSynsetSimilarity(){
         this.pipeline = new ADW();
         this.measure = new WeightedOverlap();
     }
@@ -45,5 +49,12 @@ public class ADWSynsetSimilarity implements SynsetComparator<List<String>>{
         }else {
             return score;
         }
+    }
+
+    public static ADWSynsetSimilarity getInstance(){
+        if (instance == null){
+            instance = new ADWSynsetSimilarity();
+        }
+        return instance;
     }
 }

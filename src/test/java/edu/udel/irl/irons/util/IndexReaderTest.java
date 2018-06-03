@@ -14,9 +14,9 @@ public class IndexReaderTest {
         IndexReader indexReader = new IndexReader();
         indexReader.showIronode(11);
         indexReader.showIronode(24);
-        indexReader.showIronode(34);
-        indexReader.showIronode(37);
         indexReader.showIronode(50);
+        indexReader.showIronode(34);
+//        indexReader.showIronode(102);
     }
 
 }

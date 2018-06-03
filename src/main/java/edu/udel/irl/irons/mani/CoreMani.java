@@ -28,19 +28,20 @@ import java.util.*;
 
 public class CoreMani {
 
-    private IroNode node1;
-    private IroNode node2;
+    //never used
+//    private IroNode node1;
+//    private IroNode node2;
 
     private SemanticGraph sentence1;
     private SemanticGraph sentence2;
 
-    private SynsetComparator synsetComparator;
-    private Disambiguator disambiguator;
+    private static SynsetComparator synsetComparator = null;
+    private static Disambiguator disambiguator = null;
 
     // load config file to set below field
-    private POS[] expectedPOSes = IronsConfiguration.getInstance().getExpectPOSes().chars().mapToObj(i -> POS.getPartOfSpeech((char)i)).toArray(POS[]::new);
-    private boolean skipStopword = IronsConfiguration.getInstance().getSkipwordCondition();
-    private double synsimThreshold = IronsConfiguration.getInstance().getSynSimThreshold();
+    private static POS[] expectedPOSes = IronsConfiguration.getInstance().getExpectPOSes().chars().mapToObj(i -> POS.getPartOfSpeech((char)i)).toArray(POS[]::new);
+    private static boolean skipStopword = IronsConfiguration.getInstance().getSkipwordCondition();
+    private static double synsimThreshold = IronsConfiguration.getInstance().getSynSimThreshold();
 
     private Plex plex;
     //used for save BabelNet Coins when conduct wsd.
@@ -56,11 +57,16 @@ public class CoreMani {
     private TIntObjectHashMap<List<String>> sent2Senses;
 
     public CoreMani(Disambiguator disambiguator, SynsetComparator synsetComparator) {
-        this.disambiguator = disambiguator;
-        this.synsetComparator = synsetComparator;
+        if(this.disambiguator == null){
+            this.disambiguator = disambiguator;
+        }
+
+        if(this.synsetComparator == null){
+            this.synsetComparator = synsetComparator;
+        }
 
         //For saving BabelNet coins purpose only.
-        this.coinSaver = new CoinSaver();
+        this.coinSaver = CoinSaver.getInstance();
     }
 
     /**
@@ -293,13 +299,13 @@ public class CoreMani {
                     .sum();
     }
 
-    public void saveCache() throws IOException {
-        this.coinSaver.writeToFile();
-    }
-
-    public void readCache() throws IOException, ClassNotFoundException {
-        this.coinSaver.readFromFile();
-    }
+//    public void saveCache() throws IOException {
+//        this.coinSaver.writeToFile();
+//    }
+//
+//    public void readCache() throws IOException, ClassNotFoundException {
+//        this.coinSaver.readFromFile();
+//    }
 
     /**
      * Test purpose only!
@@ -315,8 +321,8 @@ public class CoreMani {
                 "Prince William has told friends his mother was right all along to suspect her former protection officer of spying on her and he doesn't want any detective intruding on his own privacy.",
                 false);
 
-        Disambiguator disambiguator = new BabelfyDisambiguator();
-        SynsetComparator synsetComparator = new ADWSynsetSimilarity();
+        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
+        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
 
         CoreMani coreMani = new CoreMani(disambiguator, synsetComparator);
 
