@@ -51,7 +51,7 @@ public class ADWSynsetSimilarity implements SynsetComparator<List<String>>{
         }
     }
 
-    public static ADWSynsetSimilarity getInstance(){
+    public static synchronized ADWSynsetSimilarity getInstance(){
         if (instance == null){
             instance = new ADWSynsetSimilarity();
         }

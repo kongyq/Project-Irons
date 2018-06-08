@@ -18,6 +18,8 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import it.uniroma1.lcl.babelnet.InvalidBabelSynsetIDException;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -55,6 +57,23 @@ public class CoreMani {
     //Wsded word-sense hashmap
     private TIntObjectHashMap<List<String>> sent1Senses;
     private TIntObjectHashMap<List<String>> sent2Senses;
+
+    //reflection for get modules.
+    public CoreMani() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (this.disambiguator == null) {
+            Class disambiguatorClass = Class.forName("edu.udel.irl.irons.wsd." + IronsConfiguration.getInstance().getDisambiguator());
+            Method wsdMethod = disambiguatorClass.getDeclaredMethod("getInstance");
+            this.disambiguator = (Disambiguator) wsdMethod.invoke(null, null);
+        }
+
+        if (this.synsetComparator == null) {
+            Class synsetComparatorClass = Class.forName("edu.udel.irl.irons.synsim." + IronsConfiguration.getInstance().getSynsetComparator());
+            Method synsimMethod = synsetComparatorClass.getDeclaredMethod("getInstance");
+            this.synsetComparator = (SynsetComparator) synsimMethod.invoke(null, null);
+        }
+
+        this.coinSaver = CoinSaver.getInstance();
+    }
 
     public CoreMani(Disambiguator disambiguator, SynsetComparator synsetComparator) {
         if(this.disambiguator == null){

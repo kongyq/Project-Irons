@@ -11,11 +11,10 @@ public class IndexReaderTest {
     @Test
     public void showIronode() throws Exception {
 
-        IndexReader indexReader = new IndexReader();
-        indexReader.showIronode(11);
-        indexReader.showIronode(24);
-        indexReader.showIronode(50);
-        indexReader.showIronode(34);
+        IndexReader.getInstance().showIronode(11);
+        IndexReader.getInstance().showIronode(24);
+        IndexReader.getInstance().showIronode(50);
+        IndexReader.getInstance().showIronode(34);
 //        indexReader.showIronode(102);
     }
 

@@ -104,7 +104,7 @@ public class BabelfyDisambiguator implements Disambiguator<SemanticGraph, TIntOb
         return wsdedSynsetList;
     }
 
-    public static BabelfyDisambiguator getInstance(){
+    public static synchronized BabelfyDisambiguator getInstance(){
         if (instance == null){
             instance = new BabelfyDisambiguator();
         }

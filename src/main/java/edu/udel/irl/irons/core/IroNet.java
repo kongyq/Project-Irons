@@ -32,7 +32,8 @@ public class IroNet {
 
     private Graph<Integer, DefaultWeightedEdge> graph;
 
-    private File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
+    private static final File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
+    private static final File barcodeFile = new File(IronsConfiguration.getInstance().getBarcodePath());
 
     public IroNet(int k){
         this.k = k;
@@ -131,5 +132,22 @@ public class IroNet {
         FileOutputStream fileOutputStream = new FileOutputStream(this.indexFile);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
         this.nodeList.writeExternal(objectOutputStream);
+    }
+
+    public void createBarcode() throws IOException {
+        //create the barcode file if not exist.
+        this.barcodeFile.getParentFile().mkdir();
+        this.barcodeFile.createNewFile();
+
+        //store current System.out before assign to new value.
+        PrintStream console = System.out;
+
+        PrintStream out = new PrintStream(new FileOutputStream(this.barcodeFile));
+        System.setOut(out);
+        System.out.println(this.getAnnotationBarcode());
+
+        //redirect to console output
+//        out = new PrintStream(new FileOutputStream(FileDescriptor.out));
+        System.setOut(console);
     }
 }

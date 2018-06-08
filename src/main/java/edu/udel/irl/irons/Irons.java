@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
  */
 public class Irons {
 
-    private static final File barcodePath = new File(IronsConfiguration.getInstance().getBarcodePath());
+    private static final int numofThread = IronsConfiguration.getInstance().getNumberofThread();
 
     private IroNet iroNet;
     private CoreMani coreMani;
@@ -46,14 +46,16 @@ public class Irons {
     public void processing() throws Exception {
     //TODO: need to be parallelization
 
-        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
-        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
+//        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
+//        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
 
         CoinSaver.getInstance().readFromFile();
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        ExecutorService executor = Executors.newFixedThreadPool(numofThread);
+//        ExecutorService executor = Executors.newCachedThreadPool();
 
         int numberOfNodes = this.iroNet.nodeList.size();
+
         for (int i = 1; i <= numberOfNodes; i ++){
             System.out.format("%d / %d%n", i, numberOfNodes);
             System.out.flush();
@@ -61,8 +63,8 @@ public class Irons {
                 Runnable worker = new IronsWorker(
                         this.iroNet.nodeList.get(i),
                         this.iroNet.nodeList.get(j),
-                        disambiguator,
-                        synsetComparator,
+//                        disambiguator,
+//                        synsetComparator,
                         this.iroNet,
                         i,j);
 
@@ -100,18 +102,11 @@ public class Irons {
 
     public void showBarcode() throws IOException {
         System.out.println(this.iroNet.getAnnotationBarcode());
-
-        //create file if not exist.
-        this.barcodePath.getParentFile().mkdir();
-        this.barcodePath.createNewFile();
-
-        PrintStream out = new PrintStream(new FileOutputStream(this.barcodePath));
-        System.setOut(out);
-        System.out.println(this.iroNet.getAnnotationBarcode());
     }
 
     public void createIndex() throws IOException {
         this.iroNet.createIndex();
+        this.iroNet.createBarcode();
     }
 
 }

@@ -10,10 +10,11 @@ import java.io.*;
  * Created by mike on 5/17/18.
  */
 public class IndexReader {
+    private static IndexReader instance = null;
     private static final File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
     public TIntObjectHashMap<IroNode> nodeList;
 
-    public IndexReader() throws IOException, ClassNotFoundException {
+    private IndexReader() throws IOException, ClassNotFoundException {
         this.nodeList = new TIntObjectHashMap<>();
         if(indexFile.exists()){
             FileInputStream fileInputStream = new FileInputStream(indexFile);
@@ -24,6 +25,25 @@ public class IndexReader {
             System.out.println("ironodes index file does not exist!");
         }
 
+    }
+
+    public static synchronized IndexReader getInstance() throws IOException, ClassNotFoundException {
+        if (instance == null){
+            instance = new IndexReader();
+        }
+        return instance;
+    }
+
+    public String getDocId(int nodeId){
+        return this.nodeList.get(nodeId).getDocID();
+    }
+
+    public int getSentId(int nodeId){
+        return this.nodeList.get(nodeId).getSentID();
+    }
+
+    public String getContent(int nodeId){
+        return this.nodeList.get(nodeId).getContent();
     }
 
     public void showIronode(int indexNumber){

@@ -73,9 +73,13 @@ public class IronsConfiguration {
         return null;
     }
 
-    public String getDisambiguator(){return this.config.getString("mani.disambiguator");}
+    public String getDisambiguator(){
+        return this.config.getString("mani.disambiguator") + "Disambiguator";
+    }
 
-    public String getSynsetComparator(){return this.config.getString("mani.synsetComparator");}
+    public String getSynsetComparator(){
+        return this.config.getString("mani.synsetComparator") + "SynsetSimilarity";
+    }
 
     public boolean getSkipwordCondition(){return Boolean.parseBoolean(this.config.getString("mani.skipStopword"));}
 
@@ -86,6 +90,8 @@ public class IronsConfiguration {
     public String getIndexPath(){return this.config.getString("index.path");}
 
     public String getBarcodePath(){return this.config.getString("index.barcode.path");}
+
+    public int getNumberofThread(){return this.config.getInt("irons.numberofthread");}
 
     public double getSensitiveness() {
         double value = this.config.getDouble("irons.edge.sensitiveness");
