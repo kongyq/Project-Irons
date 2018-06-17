@@ -102,7 +102,7 @@ public class StopwordAnnotator implements Annotator, CoreAnnotation<Pair<Boolean
     }
 
     public static CharArraySet getStopWordList(Version luceneVersion, String stopwordList, boolean ignoreCase) {
-        String[] terms = stopwordList.split(",");
+        String[] terms = stopwordList.split("\n");
         CharArraySet stopwordSet = new CharArraySet(luceneVersion, terms.length, ignoreCase);
         for (String term : terms) {
             stopwordSet.add(term);

@@ -53,7 +53,7 @@ public class IroNet {
     public synchronized void addNode(int nodeId){
         this.graph.addVertex(nodeId);
         this.plex.addVertex(nodeId);
-        this.nodeList.put(nodeId, new IroNode(null, 0, null, false));
+        this.nodeList.put(nodeId, new IroNode(null, 0, "", false));
     }
 
     //All remove methods are not tested and may not be used in the future, just as the in case solution.

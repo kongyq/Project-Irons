@@ -37,8 +37,8 @@ public class CoreMani {
     private SemanticGraph sentence1;
     private SemanticGraph sentence2;
 
-    private static SynsetComparator synsetComparator = null;
-    private static Disambiguator disambiguator = null;
+    private static SynsetComparator synsetComparator;
+    private static Disambiguator disambiguator;
 
     // load config file to set below field
     private static POS[] expectedPOSes = IronsConfiguration.getInstance().getExpectPOSes().chars().mapToObj(i -> POS.getPartOfSpeech((char)i)).toArray(POS[]::new);
@@ -58,20 +58,23 @@ public class CoreMani {
     private TIntObjectHashMap<List<String>> sent1Senses;
     private TIntObjectHashMap<List<String>> sent2Senses;
 
-    //reflection for get modules.
-    public CoreMani() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        if (this.disambiguator == null) {
+    static {
+        try {
+            //initial disambiguator and synsetComparator classes using reflection.
             Class disambiguatorClass = Class.forName("edu.udel.irl.irons.wsd." + IronsConfiguration.getInstance().getDisambiguator());
             Method wsdMethod = disambiguatorClass.getDeclaredMethod("getInstance");
-            this.disambiguator = (Disambiguator) wsdMethod.invoke(null, null);
-        }
+            disambiguator = (Disambiguator) wsdMethod.invoke(null, null);
 
-        if (this.synsetComparator == null) {
             Class synsetComparatorClass = Class.forName("edu.udel.irl.irons.synsim." + IronsConfiguration.getInstance().getSynsetComparator());
             Method synsimMethod = synsetComparatorClass.getDeclaredMethod("getInstance");
-            this.synsetComparator = (SynsetComparator) synsimMethod.invoke(null, null);
-        }
+            synsetComparator = (SynsetComparator) synsimMethod.invoke(null, null);
 
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e ) {
+            e.printStackTrace();
+        }
+    }
+
+    public CoreMani(){
         this.coinSaver = CoinSaver.getInstance();
     }
 
@@ -97,8 +100,10 @@ public class CoreMani {
      */
     private void initialize(IroNode node1, IroNode node2) throws Exception {
         this.plex = new Plex();
-        this.sentence1 = new SemanticGraph(parseSent(node1.getContent()));
-        this.sentence2 = new SemanticGraph(parseSent(node2.getContent()));
+        this.sentence1 = node1.getContent();
+        this.sentence2 = node2.getContent();
+//        this.sentence1 = new SemanticGraph(parseSent(node1.getContent()));
+//        this.sentence2 = new SemanticGraph(parseSent(node2.getContent()));
 
         //This only for saving BabelNet coins purpose.
         if (this.coinSaver.isContain(node1)){
@@ -127,9 +132,9 @@ public class CoreMani {
         return this.computeWeight(this.synsimThreshold);
     }
 
-    public SemanticGraph parseSent(String origSentence){
-        return new Sentence(origSentence).dependencyGraph(SemanticGraphFactory.Mode.BASIC);
-    }
+//    public SemanticGraph parseSent(String origSentence){
+//        return new Sentence(origSentence).dependencyGraph(SemanticGraphFactory.Mode.BASIC);
+//    }
 
     /***
      * Initial HashMap by adding 4 POS (n, v, r, a) for words in the documents.
@@ -333,6 +338,8 @@ public class CoreMani {
     public static void main(String[] args) throws Exception {
 //        IroNode iroNode1 = new IroNode("1", 1, "A mathematician found a solution to the problem.", false);
 //        IroNode iroNode2 = new IroNode("2", 2, "The problem was solved by a young mathematician.", false);
+
+
         IroNode iroNode1 = new IroNode("1", 1,
                 "As scores of white farmers went into hiding to escape a round-up by Zimbabwean police, a senior Bush administration official called Mr Mugabe's rule \"illegitimate and irrational\" and said that his re-election as president in March was won through fraud.",
                 false);
@@ -340,10 +347,12 @@ public class CoreMani {
                 "Prince William has told friends his mother was right all along to suspect her former protection officer of spying on her and he doesn't want any detective intruding on his own privacy.",
                 false);
 
-        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
-        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
-
-        CoreMani coreMani = new CoreMani(disambiguator, synsetComparator);
+//        Disambiguator disambiguator = BabelfyDisambiguator.getInstance();
+//        SynsetComparator synsetComparator = ADWSynsetSimilarity.getInstance();
+//        System.out.println(iroNode1.getContent());
+//        System.out.println(iroNode2.getContent());
+        CoreMani coreMani = new CoreMani();
+//        CoreMani coreMani = new CoreMani(disambiguator, synsetComparator);
 
 //        coreMani.run(new POS[] {POS.NOUN, POS.VERB}, true);
 //

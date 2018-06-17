@@ -1,5 +1,6 @@
 package edu.udel.irl.irons.util;
 
+import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.udel.irl.irons.IronsConfiguration;
 import edu.udel.irl.irons.core.IroNode;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -42,9 +43,11 @@ public class IndexReader {
         return this.nodeList.get(nodeId).getSentID();
     }
 
-    public String getContent(int nodeId){
+    public SemanticGraph getContent(int nodeId){
         return this.nodeList.get(nodeId).getContent();
     }
+
+    public String getText(int nodeId){return this.nodeList.get(nodeId).getText();}
 
     public void showIronode(int indexNumber){
         IroNode iroNode = this.nodeList.get(indexNumber);
@@ -52,7 +55,8 @@ public class IndexReader {
                 iroNode.getNodeID(),
                 iroNode.getDocID(),
                 iroNode.getSentID(),
-                iroNode.getContent());
+                iroNode.getContent().toRecoveredSentenceString());
+//                iroNode.getText());
     }
 
 

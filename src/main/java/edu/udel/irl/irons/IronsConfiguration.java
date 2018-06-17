@@ -83,6 +83,10 @@ public class IronsConfiguration {
 
     public boolean getSkipwordCondition(){return Boolean.parseBoolean(this.config.getString("mani.skipStopword"));}
 
+    public String getStopwordList(){return this.config.getString("mani.stopword.List");}
+
+    public boolean getIsIgnoreStopwordCase(){return this.config.getBoolean("mani.stopword.ignorecase");}
+
     public double getSynSimThreshold(){return this.config.getDouble("mani.threshold");}
 
     public String getExpectPOSes(){return this.config.getString("mani.POS");}
@@ -103,5 +107,18 @@ public class IronsConfiguration {
     }
 
     public String getBabelfycache() {return this.config.getString("babelfy.coinsaver.path");}
+
+    public String getNASARIVectorType(){return this.config.getString("nasari.vector.type");}
+
+    public String getNASARIVectorFile(){
+        switch (this.getNASARIVectorType()){
+            case "lexical": return this.config.getString("nasari.lexical.vectorFile");
+            case "unified": return this.config.getString("nasari.unified.vectorFile");
+            case "embed":   return this.config.getString("nasari.embed.vectorFile");
+            default:
+                System.out.println("Wrong parameter for vector type! Please check and fix it.");
+                return null;
+        }
+    }
 
 }
