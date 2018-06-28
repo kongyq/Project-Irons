@@ -121,4 +121,8 @@ public class IronsConfiguration {
         }
     }
 
+    public boolean getIsCompressedNASARILexicalModel(){
+        return this.config.getBoolean("nasari.lexical.compressModel");
+    }
+
 }
