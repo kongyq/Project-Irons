@@ -78,18 +78,18 @@ public class CoreMani {
         this.coinSaver = CoinSaver.getInstance();
     }
 
-    public CoreMani(Disambiguator disambiguator, SynsetComparator synsetComparator) {
-        if(this.disambiguator == null){
-            this.disambiguator = disambiguator;
-        }
-
-        if(this.synsetComparator == null){
-            this.synsetComparator = synsetComparator;
-        }
-
-        //For saving BabelNet coins purpose only.
-        this.coinSaver = CoinSaver.getInstance();
-    }
+//    public CoreMani(Disambiguator disambiguator, SynsetComparator synsetComparator) {
+//        if(CoreMani.disambiguator == null){
+//            CoreMani.disambiguator = disambiguator;
+//        }
+//
+//        if(CoreMani.synsetComparator == null){
+//            CoreMani.synsetComparator = synsetComparator;
+//        }
+//
+//        //For saving BabelNet coins purpose only.
+//        this.coinSaver = CoinSaver.getInstance();
+//    }
 
     /**
      * initialize fields for new nodes.
@@ -255,11 +255,7 @@ public class CoreMani {
      */
     public static boolean isStopword(IndexedWord indexedWord){
         Pair<Boolean, Boolean> stopword = indexedWord.backingLabel().get(StopwordAnnotator.class);
-        if (stopword.first() || stopword.second()){
-            return true;
-        }else{
-            return false;
-        }
+        return stopword.first() || stopword.second();
     }
 
     private void addInterConnection(POS pos){
@@ -279,7 +275,7 @@ public class CoreMani {
 
                 if (this.sent1Senses.containsKey(indexedWord1.index()) &&
                         this.sent2Senses.containsKey(indexedWord2.index())){
-                    double score = this.synsetComparator.compare(this.sent1Senses.get(indexedWord1.index()),
+                    double score = synsetComparator.compare(this.sent1Senses.get(indexedWord1.index()),
                             this.sent2Senses.get(indexedWord2.index()));
 
                     this.plex.addElement(
