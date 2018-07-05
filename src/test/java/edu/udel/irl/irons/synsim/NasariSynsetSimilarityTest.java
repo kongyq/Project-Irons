@@ -9,19 +9,11 @@ import static org.junit.Assert.*;
  */
 public class NasariSynsetSimilarityTest {
 
-    NasariSynsetSimilarity instance = NasariSynsetSimilarity.getInstance();
-
-    @Test
-    public void getDimensions() throws Exception {
-        System.out.println(instance.getDimensions("bn:00000001n"));
-    }
+    NasariSynsetSimilarity synsetSimilarity = NasariSynsetSimilarity.getInstance();
 
     @Test
     public void compare() throws Exception {
-    }
-
-    @Test
-    public void getInstance() throws Exception {
+        System.out.println(synsetSimilarity.compare("bn:00000004n","bn:70000005n"));
     }
 
 }

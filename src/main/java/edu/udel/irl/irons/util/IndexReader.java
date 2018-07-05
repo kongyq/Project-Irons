@@ -13,7 +13,7 @@ import java.io.*;
 public class IndexReader {
     private static IndexReader instance = null;
     private static final File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
-    public TIntObjectHashMap<IroNode> nodeList;
+    private TIntObjectHashMap<IroNode> nodeList;
 
     private IndexReader() throws IOException, ClassNotFoundException {
         this.nodeList = new TIntObjectHashMap<>();

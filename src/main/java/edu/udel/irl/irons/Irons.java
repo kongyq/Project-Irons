@@ -1,18 +1,23 @@
 package edu.udel.irl.irons;
 
 import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.udel.irl.irons.clustering.HCS;
 import edu.udel.irl.irons.core.IroNet;
 import edu.udel.irl.irons.core.IroNode;
 import edu.udel.irl.irons.mani.CoinSaver;
 import edu.udel.irl.irons.mani.CoreMani;
-import edu.udel.irl.irons.synsim.ADWSynsetSimilarity;
-import edu.udel.irl.irons.synsim.SynsetComparator;
 import edu.udel.irl.irons.util.CoreNlpUtil;
-import edu.udel.irl.irons.wsd.BabelfyDisambiguator;
-import edu.udel.irl.irons.wsd.Disambiguator;
+import edu.udel.irl.irons.util.IndexReader;
 import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -102,6 +107,35 @@ public class Irons {
     public void createIndex() throws IOException {
         this.iroNet.createIndex();
         this.iroNet.createBarcode();
+        //save irons graph for clustering
+        this.iroNet.saveGraph();
     }
 
+    public static void HCSClustering() throws IOException, ClassNotFoundException {
+
+        FileInputStream fileInputStream = new FileInputStream(new File(IronsConfiguration.getInstance().getGraphPath()));
+        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+        Graph<Integer, DefaultWeightedEdge> graph = (SimpleWeightedGraph) objectInputStream.readObject();
+        objectInputStream.close();
+
+        HCS hcs = new HCS(graph);
+        hcs.execute();
+
+        List<IntSet> clusters = hcs.getClusters();
+
+        File clusterFile = new File(IronsConfiguration.getInstance().getClustersPath());
+        clusterFile.getParentFile().mkdir();
+        clusterFile.createNewFile();
+        BufferedWriter writer = Files.newBufferedWriter(clusterFile.toPath());
+
+        for(IntSet cluster: clusters){
+            System.out.println(cluster);
+            TObjectIntHashMap<String> docFreqMap = new TObjectIntHashMap<>();
+            for(int nodeId: cluster){
+                docFreqMap.adjustOrPutValue(IndexReader.getInstance().getDocId(nodeId),1,1);
+            }
+            writer.write(docFreqMap.toString() + "\n");
+        }
+        writer.close();
+    }
 }

@@ -65,8 +65,8 @@ public class IronsConfiguration {
         if(c != null && string != null) {
             try {
                 return Enum.valueOf(c, string.trim().toUpperCase());
-            } catch (IllegalArgumentException var3) {
-                ;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e);;
             }
         }
 
@@ -94,6 +94,8 @@ public class IronsConfiguration {
     public String getIndexPath(){return this.config.getString("index.path");}
 
     public String getBarcodePath(){return this.config.getString("index.barcode.path");}
+
+    public String getGraphPath(){return this.config.getString("index.graph.path");}
 
     public int getNumberofThread(){return this.config.getInt("irons.numberofthread");}
 
@@ -125,4 +127,9 @@ public class IronsConfiguration {
         return this.config.getBoolean("nasari.lexical.compressModel");
     }
 
+    public String getWSDSource(){return this.config.getString("mani.disambiguator.source");}
+
+    public String getWSDTarget(){return this.config.getString("mani.disambiguator.target");}
+
+    public String getClustersPath(){return this.config.getString("dc.clusters.path");}
 }

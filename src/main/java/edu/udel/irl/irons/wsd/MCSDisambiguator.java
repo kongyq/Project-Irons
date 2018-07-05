@@ -2,6 +2,7 @@ package edu.udel.irl.irons.wsd;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.udel.irl.irons.IronsConfiguration;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import it.uniroma1.lcl.babelnet.*;
 import it.uniroma1.lcl.babelnet.data.BabelPOS;
@@ -16,6 +17,10 @@ import java.util.stream.Collectors;
  * Created by mike on 6/14/18.
  */
 public class MCSDisambiguator implements Disambiguator<SemanticGraph, TIntObjectHashMap>{
+
+    private static final String synsetTargetOffset = IronsConfiguration.getInstance().getWSDTarget();
+    private static BabelSenseSource senseSource = IronsConfiguration.
+            getEnumFromString(BabelSenseSource.class, IronsConfiguration.getInstance().getWSDSource());
 
     public static MCSDisambiguator instance = null;
 
@@ -39,10 +44,29 @@ public class MCSDisambiguator implements Disambiguator<SemanticGraph, TIntObject
             if(tagToBabelPOS(word.tag()) == null){continue;}
 
             List<BabelSynset> synsetList = new ArrayList<>();
+
             try {
                 //get all synset of the word with English pos and source
-                synsetList = babelNet.getSynsets(word.lemma(), Language.EN, tagToBabelPOS(word.tag()), BabelSenseSource.WN);
-            } catch (IOException e) {
+
+                if(senseSource.equals(BabelSenseSource.WN)) {
+                    synsetList = babelNet
+                            .getSynsets(
+                                    word.lemma(),
+                                    Language.EN,
+                                    tagToBabelPOS(word.tag()),
+                                    Collections.singletonList(Language.EN),
+                                    BabelSenseSource.WN);
+                }else if(senseSource.equals(BabelSenseSource.BABELNET)) {
+                    synsetList = babelNet
+                            .getSynsets(
+                                    word.lemma(),
+                                    Language.EN,
+                                    tagToBabelPOS(word.tag()),
+                                    Collections.singletonList(Language.EN));
+                }else{
+                    throw new Exception("Wrong synset source! please check the iron.properties file.");
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -52,15 +76,27 @@ public class MCSDisambiguator implements Disambiguator<SemanticGraph, TIntObject
 
             if(synsetList.isEmpty()){continue;}
 
-            wsdedSynsetList.put(
-                    word.index(),
-                    synsetList
-                            .get(0)
-                            .getWordNetOffsets()
-                            .stream()
-                            .map(offset -> offset.getSimpleOffset())
-                            .collect(Collectors.toList()));
-
+            switch (synsetTargetOffset) {
+                case "BABELNET":
+                    wsdedSynsetList.put(word.index(),Collections.singletonList(synsetList.get(0).getId().getID()));
+                    break;
+                case "WN":
+                    wsdedSynsetList.put(word.index(),
+                            synsetList
+                                    .get(0)
+                                    .getWordNetOffsets()
+                                    .stream()
+                                    .map(WordNetSynsetID::getSimpleOffset)
+                                    .collect(Collectors.toList()));
+                    break;
+                default:
+                    try {
+                        throw new Exception("Wrong target synset offset source! please check irons.properties file.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
         }
         return wsdedSynsetList;
     }
@@ -70,7 +106,7 @@ public class MCSDisambiguator implements Disambiguator<SemanticGraph, TIntObject
      * @param tag Penn Treebank POS
      * @return BabelPOS
      */
-    public BabelPOS tagToBabelPOS (String tag){
+    private BabelPOS tagToBabelPOS(String tag){
         String[] noun = {"NN", "NNS", "NNP", "NNPS"};
         String[] verb = {"VB", "VBD", "VBG", "VBN", "VBP", "VBZ"};
         String[] adv = {"RB", "RBR", "RBS"};

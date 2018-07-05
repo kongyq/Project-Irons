@@ -19,7 +19,8 @@ public class WeightedOverlapTest {
     public void compare() throws Exception {
 
 //        System.out.println(Arrays.equals(new byte[]{'c', 'b', 'a'}, new byte[]{'c','b','a'}));
-        System.out.println(WeightedOverlap.<Integer> compare(new Integer[]{1, 2, 3}, new Integer[] {3,2,1}));
+        System.out.println(WeightedOverlap.compare(new int[]{1,2,3}, new int[]{3,2,1}));
+        System.out.println(WeightedOverlap.compare(new Integer[]{1, 2, 3}, new Integer[] {3,2,1}));
 //        System.out.println(WeightedOverlap.<Byte> compare(new Byte[]{'1','2','3'}, new Byte[]{'3','2','1'}));
 //        System.out.println(new byte[]{'a','b','c'}.equals(new byte[]{'a','b','c'}));
         System.out.println(WeightedOverlap.compare(

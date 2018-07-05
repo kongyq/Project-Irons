@@ -41,7 +41,8 @@ public class CoreMani {
     private static Disambiguator disambiguator;
 
     // load config file to set below field
-    private static POS[] expectedPOSes = IronsConfiguration.getInstance().getExpectPOSes().chars().mapToObj(i -> POS.getPartOfSpeech((char)i)).toArray(POS[]::new);
+    private static POS[] expectedPOSes = IronsConfiguration.getInstance().getExpectPOSes()
+            .chars().mapToObj(i -> POS.getPartOfSpeech((char)i)).toArray(POS[]::new);
     private static boolean skipStopword = IronsConfiguration.getInstance().getSkipwordCondition();
     private static double synsimThreshold = IronsConfiguration.getInstance().getSynSimThreshold();
 
@@ -55,8 +56,8 @@ public class CoreMani {
     private HashMap<POS, ArrayList<IndexedWord>> wordList2;
 
     //Wsded word-sense hashmap
-    private TIntObjectHashMap<List<String>> sent1Senses;
-    private TIntObjectHashMap<List<String>> sent2Senses;
+    private TIntObjectHashMap sent1Senses;
+    private TIntObjectHashMap sent2Senses;
 
     static {
         try {
@@ -77,19 +78,6 @@ public class CoreMani {
     public CoreMani(){
         this.coinSaver = CoinSaver.getInstance();
     }
-
-//    public CoreMani(Disambiguator disambiguator, SynsetComparator synsetComparator) {
-//        if(CoreMani.disambiguator == null){
-//            CoreMani.disambiguator = disambiguator;
-//        }
-//
-//        if(CoreMani.synsetComparator == null){
-//            CoreMani.synsetComparator = synsetComparator;
-//        }
-//
-//        //For saving BabelNet coins purpose only.
-//        this.coinSaver = CoinSaver.getInstance();
-//    }
 
     /**
      * initialize fields for new nodes.
@@ -128,8 +116,8 @@ public class CoreMani {
 
     public double computeEdgeWeight(IroNode node1, IroNode node2) throws Exception {
         this.initialize(node1, node2);
-        this.run(this.expectedPOSes, this.skipStopword);
-        return this.computeWeight(this.synsimThreshold);
+        this.run(expectedPOSes, skipStopword);
+        return this.computeWeight(synsimThreshold);
     }
 
 //    public SemanticGraph parseSent(String origSentence){
@@ -140,7 +128,7 @@ public class CoreMani {
      * Initial HashMap by adding 4 POS (n, v, r, a) for words in the documents.
      * @param
      */
-    private HashMap initWordList(){
+    private HashMap<POS, ArrayList<IndexedWord>> initWordList(){
         HashMap<POS, ArrayList<IndexedWord>> wordList = new HashMap<>();
         wordList.put(POS.NOUN, new ArrayList<>());
         wordList.put(POS.VERB, new ArrayList<>());
@@ -154,7 +142,7 @@ public class CoreMani {
      * @param tag
      * @return
      */
-    public static POS tagToPOS (String tag){
+    private static POS tagToPOS(String tag){
         String[] noun = {"NN", "NNS", "NNP", "NNPS"};
         String[] verb = {"VB", "VBD", "VBG", "VBN", "VBP", "VBZ"};
         String[] adv = {"RB", "RBR", "RBS"};
@@ -190,7 +178,7 @@ public class CoreMani {
      * @param node IndexedWord of the word
      * @return node pairs include all edges of the dependency parse tree.
      */
-    public static Set<Pair<IndexedWord, IndexedWord>> getAllAdjacentNodePairs(SemanticGraph sentence, IndexedWord node){
+    private static Set<Pair<IndexedWord, IndexedWord>> getAllAdjacentNodePairs(SemanticGraph sentence, IndexedWord node){
         Set<Pair<IndexedWord, IndexedWord>> nodePairs = new HashSet<>();
         if (sentence.hasChildren(node)){
             for (IndexedWord child: sentence.getChildren(node)){
@@ -308,7 +296,7 @@ public class CoreMani {
         this.plex.finalizeStream();
     }
 
-    public double computeWeight(double threshold){
+    private double computeWeight(double threshold){
         this.plex.computeBarcode();
 //        System.out.println(this.plex.getBarcode());
         return this.plex

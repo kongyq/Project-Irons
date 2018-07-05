@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  */
 public class NasariUnifiedModelTest {
 
-    private NasariModel model = NasariModel.getInstance(new File(IronsConfiguration.getInstance().getNASARIVectorFile()));
+    private NasariModel model = NasariUnifiedModel.getInstance(new File(IronsConfiguration.getInstance().getNASARIVectorFile()));
 
     @Test
     public void getVectors() throws Exception {

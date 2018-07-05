@@ -133,7 +133,7 @@ public class NasariUnifiedModel implements NasariModel<int[]>{
     //use soft copy to make sure the method is thread safe.
     public int[] getVectors(int synset){
         if(!this.synset2vectorOffset.containsKey(synset)){
-            return null;
+            return new int[0];
         }
         //soft copy
         IntBuffer threadSafeShadowVectors = this.vectors.asReadOnlyBuffer();

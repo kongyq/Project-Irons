@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  */
 public class BarcodeParserTest {
 
-    private static final File barcodeFile = new File(System.getProperty("user.dir") + "/index/barcodesPwithR.txt");
+    private static final File barcodeFile = new File(System.getProperty("user.dir") + "/index/barcodes_New_Pipeline_MCS_Nasari_3_no_stopword_571.txt");
 
     BarcodeParser barcodeParser = new BarcodeParser();
 
@@ -19,6 +19,7 @@ public class BarcodeParserTest {
     public void parse() throws Exception {
         barcodeParser.parse(barcodeFile);
     }
+
 
     @Test
     public void display() throws Exception {

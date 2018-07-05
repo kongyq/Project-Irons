@@ -41,7 +41,9 @@ public class WeightedOverlap {
 
     public static double compare(int[] v1, int[] v2) {
         IntSet overlaps = new IntOpenHashSet(v1);
-        overlaps.retainAll(Arrays.asList(v2));
+        IntSet temp = new IntOpenHashSet(v2);
+        overlaps.retainAll(temp);
+//        overlaps.retainAll(Arrays.asList(v2));
         return v1.length > v2.length?compareSmallerWithBigger(overlaps, v2, v1):compareSmallerWithBigger(overlaps, v1, v2);
     }
 

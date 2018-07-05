@@ -15,7 +15,8 @@ public class BabelfyDisambiguatorTest {
     CoreNlpUtil coreNlpUtil = CoreNlpUtil.getInstance();
 
 //    SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("A mathematician found a solution to the problem.");
-    SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("She is a beautiful woman with a golden hair and a pair of charming eyes.");
+//    SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("She is a beautiful woman with a golden hair and a pair of charming eyes.");
+    SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("Babelfy has received funding from the European Research Council.");
     @Test
     public void tagToPosTag() throws Exception {
     }

@@ -47,8 +47,14 @@ public class IronsTest {
         System.out.println("Processing finished!");
         irons.createIndex();
         irons.showBarcode();
+        Irons.HCSClustering();
         stopwatch.stop();
         System.out.println(stopwatch.elapsed(TimeUnit.MINUTES));
+    }
+
+    @Test
+    public void hcstest() throws IOException, ClassNotFoundException {
+        Irons.HCSClustering();
     }
 
 }

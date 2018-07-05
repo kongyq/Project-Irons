@@ -11,10 +11,10 @@ import static org.junit.Assert.*;
  */
 public class MCSDisambiguatorTest {
 
-    MCSDisambiguator mcsDisambiguator = MCSDisambiguator.getInstance();
-    CoreNlpUtil coreNlpUtil = CoreNlpUtil.getInstance();
+    private MCSDisambiguator mcsDisambiguator = MCSDisambiguator.getInstance();
+    private CoreNlpUtil coreNlpUtil = CoreNlpUtil.getInstance();
 
-    SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("A mathematician found a solution to the problem.");
+    private SemanticGraph testSG = coreNlpUtil.parseOneSentenceDoc("A mathematician found a solution to the problem.");
     @Test
     public void disambiguate() throws Exception {
         System.out.println(mcsDisambiguator.disambiguate(testSG));

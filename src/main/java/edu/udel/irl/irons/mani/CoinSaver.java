@@ -17,7 +17,8 @@ public class CoinSaver {
 
     private static final File cacheFile = new File(IronsConfiguration.getInstance().getBabelfycache());
 
-    private volatile TIntObjectHashMap<TIntObjectHashMap<List<String>>> wsdedSentences;
+//    private volatile TIntObjectHashMap<TIntObjectHashMap<List<String>>> wsdedSentences;
+    private volatile TIntObjectHashMap<TIntObjectHashMap> wsdedSentences;
 
     public static synchronized CoinSaver getInstance(){
         if (instance == null){
@@ -30,7 +31,7 @@ public class CoinSaver {
         this.wsdedSentences = new TIntObjectHashMap<>();
     }
 
-    public synchronized void addSentSenses(IroNode node, TIntObjectHashMap<List<String>> sentSenses){
+    public synchronized void addSentSenses(IroNode node, TIntObjectHashMap sentSenses){
         this.wsdedSentences.putIfAbsent(node.getNodeID(), sentSenses);
     }
 

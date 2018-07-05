@@ -5,19 +5,14 @@ import edu.udel.irl.irons.nasari.NasariLexicalModel;
 import edu.udel.irl.irons.nasari.NasariModel;
 import edu.udel.irl.irons.nasari.NasariUnifiedModel;
 import edu.udel.irl.irons.nasari.WeightedOverlap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by mike on 4/18/18.
  */
-public class NasariSynsetSimilarity implements SynsetComparator<String>{
+public class NasariSynsetSimilarity implements SynsetComparator<List<String>>{
 
     private static final String vectorType = IronsConfiguration.getInstance().getNASARIVectorType();
     private static final File vectorFile = new File(IronsConfiguration.getInstance().getNASARIVectorFile());
@@ -29,7 +24,24 @@ public class NasariSynsetSimilarity implements SynsetComparator<String>{
             model = NasariUnifiedModel.getInstance(vectorFile);
         }else if(vectorType.equals("lexical")){
             model = NasariLexicalModel.getInstance(vectorFile);
+        }else{
+            System.out.println("Wrong vector file type! Please check configuration in irons.properties.");
+            System.exit(1);
         }
+    }
+
+    public double compare(List<String> synsetList1, List<String> synsetList2){
+        double score = 0D;
+        for(String synset1: synsetList1){
+            for(String synset2: synsetList2){
+                double subScore = this.compare(synset1, synset2);
+                if(subScore > score){
+                    score = subScore;
+                }
+            }
+        }
+        if(score > 1D){return 1D;}
+        else {return score;}
     }
 
     public double compare(String synset1, String synset2){

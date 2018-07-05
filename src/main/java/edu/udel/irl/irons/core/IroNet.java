@@ -34,6 +34,7 @@ public class IroNet {
 
     private static final File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
     private static final File barcodeFile = new File(IronsConfiguration.getInstance().getBarcodePath());
+    private static final File graphFile = new File(IronsConfiguration.getInstance().getGraphPath());
 
     public IroNet(int k){
         this.k = k;
@@ -126,28 +127,41 @@ public class IroNet {
 
     public void createIndex() throws IOException {
         //create the index file if not exist.
-        this.indexFile.getParentFile().mkdir();
-        this.indexFile.createNewFile();
+        indexFile.getParentFile().mkdir();
+        indexFile.createNewFile();
 
-        FileOutputStream fileOutputStream = new FileOutputStream(this.indexFile);
+        FileOutputStream fileOutputStream = new FileOutputStream(indexFile);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
         this.nodeList.writeExternal(objectOutputStream);
     }
 
     public void createBarcode() throws IOException {
         //create the barcode file if not exist.
-        this.barcodeFile.getParentFile().mkdir();
-        this.barcodeFile.createNewFile();
+        barcodeFile.getParentFile().mkdir();
+        barcodeFile.createNewFile();
 
         //store current System.out before assign to new value.
         PrintStream console = System.out;
 
-        PrintStream out = new PrintStream(new FileOutputStream(this.barcodeFile));
+        PrintStream out = new PrintStream(new FileOutputStream(barcodeFile));
         System.setOut(out);
         System.out.println(this.getAnnotationBarcode());
 
         //redirect to console output
 //        out = new PrintStream(new FileOutputStream(FileDescriptor.out));
         System.setOut(console);
+    }
+
+    public Graph<Integer, DefaultWeightedEdge> getGraph(){return this.graph;}
+
+    public void saveGraph() throws IOException {
+        graphFile.getParentFile().mkdir();
+        graphFile.createNewFile();
+
+        FileOutputStream fileOutputStream = new FileOutputStream(graphFile);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+        objectOutputStream.writeObject(this.graph);
+        objectOutputStream.flush();
+        objectOutputStream.close();
     }
 }

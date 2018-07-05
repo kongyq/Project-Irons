@@ -23,9 +23,7 @@ public class Facelet {
     public Facelet(int dim, double startTime, String face){
         this.dim = dim;
         this.startTime = startTime;
-        if(face.startsWith("-")){
-            this.posPhase = false;
-        }else {this.posPhase = true;}
+        this.posPhase = !face.startsWith("-");
         this.nodeIdList = new TIntArrayList();
         this.docList = new TObjectIntHashMap();
 //        this.docList = new HashSet<>();
@@ -41,18 +39,14 @@ public class Facelet {
                 this.docList.adjustOrPutValue(IndexReader.getInstance().getDocId(Integer.parseInt(matcher.group())),
                         1,1);
 //                this.docList.add(IndexReader.getInstance().getDocId(Integer.parseInt(matcher.group())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
     }
 
     public boolean equals(Object object){
-        if(object instanceof Facelet && ((Facelet)object).nodeIdList.equals(this.getNodeIdList())){
-            return true;
-        }else {return false;}
+        return object instanceof Facelet && ((Facelet) object).nodeIdList.equals(this.getNodeIdList());
     }
 
     public int hashCode(){

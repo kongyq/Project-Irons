@@ -2,6 +2,7 @@ package edu.udel.irl.irons.wsd;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.udel.irl.irons.IronsConfiguration;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import it.uniroma1.lcl.babelnet.*;
 import it.uniroma1.lcl.babelnet.data.BabelPOS;
@@ -16,10 +17,13 @@ import java.util.*;
  */
 public class MFSDisambiguator implements Disambiguator<SemanticGraph, TIntObjectHashMap>{
 
+    private static final String synsetTargetOffset = IronsConfiguration.getInstance().getWSDTarget();
+    private static BabelSenseSource senseSource = IronsConfiguration.
+            getEnumFromString(BabelSenseSource.class, IronsConfiguration.getInstance().getWSDSource());
+
     public static MFSDisambiguator instance = null;
 
     private BabelNet babelNet;
-
 
     private MFSDisambiguator(){
         this.babelNet = BabelNet.getInstance();
@@ -40,24 +44,60 @@ public class MFSDisambiguator implements Disambiguator<SemanticGraph, TIntObject
             List<BabelSense> senseList = new ArrayList<>();
             try {
                 //get all senses of the word with specific language pos and source
-                senseList = babelNet.getSenses(word.lemma(), Language.EN, tagToBabelPOS(word.tag()), BabelSenseSource.WN);
-            } catch (IOException e) {
+                if(senseSource.equals(BabelSenseSource.WN)) {
+                    senseList = babelNet
+                            .getSenses(
+                                    word.lemma(),
+                                    Language.EN,
+                                    tagToBabelPOS(word.tag()),
+                                    Collections.singletonList(Language.EN),
+                                    senseSource);
+                }else if(senseSource.equals(BabelSenseSource.BABELNET)){
+                    senseList = babelNet
+                            .getSenses(
+                                    word.lemma(),
+                                    Language.EN,
+                                    tagToBabelPOS(word.tag()),
+                                    Collections.singletonList(Language.EN));
+                }else{
+                    throw new Exception("Wrong synset source! please check the iron.properties file.");
+                }
+//                System.out.println(senseList.size());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
             if(senseList.isEmpty()){continue;}
             //find the most frequency sense
-            String wordNetOffset = senseList
-                    .stream()
-                    .max(Comparator.comparing(BabelSense::getFrequency))
-                    .get()
-                    .getWordNetOffset()
-                    .toString();
+            switch (synsetTargetOffset) {
+                case "BABELNET": {
+                    String synsetOffset = senseList
+                            .stream()
+                            .max(Comparator.comparing(BabelSense::getFrequency))
+                            .get()
+                            .getSynsetID().getID();
+//                    .getWordNetOffset();
+                    wsdedSynsetList.put(word.index(), Collections.singletonList(synsetOffset));
+                    break;
+                }
+                case "WN": {
+                    String synsetOffset = senseList
+                            .stream()
+                            .max(Comparator.comparing(BabelSense::getFrequency))
+                            .get()
+                            .getWordNetOffset();
+                    wsdedSynsetList.put(word.index(), Collections.singletonList(synsetOffset));
+                    break;
+                }
+                default:
+                    try {
+                        throw new Exception("Wrong target synset offset source! please check irons.properties file.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
 
-            ArrayList<String> wordNetOffsetList = new ArrayList<>(1);
-            wordNetOffsetList.add(wordNetOffset);
-
-            wsdedSynsetList.put(word.index(), wordNetOffsetList);
 
         }
         return wsdedSynsetList;
@@ -68,7 +108,7 @@ public class MFSDisambiguator implements Disambiguator<SemanticGraph, TIntObject
      * @param tag Penn Treebank POS
      * @return BabelPOS
      */
-    public BabelPOS tagToBabelPOS (String tag){
+    private BabelPOS tagToBabelPOS(String tag){
         String[] noun = {"NN", "NNS", "NNP", "NNPS"};
         String[] verb = {"VB", "VBD", "VBG", "VBN", "VBP", "VBZ"};
         String[] adv = {"RB", "RBR", "RBS"};
