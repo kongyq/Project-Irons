@@ -13,47 +13,36 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class IronsWorker implements Runnable {
 
-    private double sensitiveness = IronsConfiguration.getInstance().getSensitiveness();
-    private IroNode node1;
-    private IroNode node2;
-    private CoreMani coreMani;
+    private static final double sensitiveness = IronsConfiguration.getInstance().getSensitiveness();
     private IroNet iroNet;
-    private int i;
-    private int j;
+    private int nodeId_i;
+    private int nodeId_j;
 
-    public IronsWorker(IroNode node1, IroNode node2, IroNet iroNet, int i, int j) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.node1 = node1;
-        this.node2 = node2;
-        this.coreMani = new CoreMani();
+    public IronsWorker(int nodeId_i, int nodeId_j, IroNet iroNet){
         this.iroNet = iroNet;
-        this.i = i;
-        this.j = j;
+        this.nodeId_i = nodeId_i;
+        this.nodeId_j = nodeId_j;
     }
-//
-//    public IronsWorker(IroNode node1, IroNode node2, Disambiguator disambiguator, SynsetComparator synsetComparator, IroNet iroNet, int i, int j){
-//        this.node1 = node1;
-//        this.node2 = node2;
-//        this.coreMani = new CoreMani(disambiguator, synsetComparator);
-//        this.iroNet = iroNet;
-//        this.i = i;
-//        this.j = j;
-//    }
 
-    public void run() {
-        double similarity = 0;
+    public void run(){
+
+        double maniScore = 0D;
+        CoreMani coreMani = new CoreMani();
+
         try {
-            similarity = this.coreMani.computeEdgeWeight(this.node1, this.node2);
+            maniScore = coreMani.computeEdgeWeight(
+                    this.iroNet.nodeList.get(nodeId_i),
+                    this.iroNet.nodeList.get(nodeId_j));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // (sensitiveness * similarity) has to be great than or equal to 1.0
-        // then use reciprocal as their edge's filtration value.
-        double threshold = this.sensitiveness / similarity;
-//                double threshold = 1D / (this.sensitiveness * similarity);
-        if (threshold <= 1D) {
-            this.iroNet.addEdge(this.node1, this.node2, threshold);
+        double similarity = sensitiveness / maniScore;
+
+        if(similarity <= 1D){
+            this.iroNet.addEdge(nodeId_i, nodeId_j, similarity);
         }
-        System.out.format("%d, %d%n", this.i, this.j);
+
+        System.out.format("%d, %d%n", nodeId_i, nodeId_j);
     }
 }

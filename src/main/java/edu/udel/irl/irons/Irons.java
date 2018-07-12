@@ -30,7 +30,7 @@ public class Irons {
 
     private IroNet iroNet;
     private CoreMani coreMani;
-    private double sensitiveness = IronsConfiguration.getInstance().getSensitiveness();
+//    private double sensitiveness = IronsConfiguration.getInstance().getSensitiveness();
     private CoreNlpUtil coreNlpUtil;
 
     public Irons(int k){
@@ -53,50 +53,49 @@ public class Irons {
 
         CoinSaver.getInstance().readFromFile();
 
-        ExecutorService executor = Executors.newFixedThreadPool(numofThread);
-//        ExecutorService executor = Executors.newCachedThreadPool();
-
         int numberOfNodes = this.iroNet.nodeList.size();
 
+        int threadCount = 0;
+        int batchCount = 0;
+
+        ExecutorService executor = Executors.newFixedThreadPool(numofThread);
+
         for (int i = 1; i <= numberOfNodes; i ++){
+
             System.out.format("%d / %d%n", i, numberOfNodes);
             System.out.flush();
-            for (int j = i + 1; j <= numberOfNodes; j ++){
-                Runnable worker = new IronsWorker(
-                        this.iroNet.nodeList.get(i),
-                        this.iroNet.nodeList.get(j),
-                        this.iroNet,
-                        i,j);
 
+            for (int j = i + 1; j <= numberOfNodes; j ++){
+                Runnable worker = new IronsWorker(i, j, this.iroNet);
                 executor.execute(worker);
 
-
-//                double similarity = this.coreMani.computeEdgeWeight(
-//                        this.iroNet.nodeList.get(i),
-//                        this.iroNet.nodeList.get(j));
-//
-//                // (sensitiveness * similarity) has to be great than or equal to 1.0
-//                // then use reciprocal as their edge's filtration value.
-//                double threshold = this.sensitiveness / similarity;
-////                double threshold = 1D / (this.sensitiveness * similarity);
-//                if (threshold <= 1D){
-//                    this.iroNet.addEdge(
-//                            this.iroNet.nodeList.get(i),
-//                            this.iroNet.nodeList.get(j),
-//                            threshold);
-//
-//                }
+                threadCount++;
+                //if number of threads is 1000 then shutdown thread pool and execute the threads.
+                if(threadCount == 1000){
+                    threadCount = 0;
+                    batchCount ++;
+                    executor.shutdown();
+                    System.out.format("Executing %dth 1000 threads...%n", batchCount);
+                    while (!executor.isTerminated()){
+                        Thread.yield();
+                    }
+                    executor = Executors.newFixedThreadPool(numofThread);
+                }
             }
         }
 
         executor.shutdown();
-
+        System.out.println("Executing the last batch threads...%n");
         while (!executor.isTerminated()){
             Thread.yield();
         }
 
         CoinSaver.getInstance().writeToFile();
 
+        //optimize the ironet graph by remove all singletons
+        System.out.println("Optimizing the IroNet...");
+        this.iroNet.optimizeIroNet();
+        System.out.println("Finalizing the IroNet...");
         this.iroNet.finalizeIroNet();
     }
 
@@ -115,7 +114,7 @@ public class Irons {
 
         FileInputStream fileInputStream = new FileInputStream(new File(IronsConfiguration.getInstance().getGraphPath()));
         ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-        Graph<Integer, DefaultWeightedEdge> graph = (SimpleWeightedGraph) objectInputStream.readObject();
+        Graph<Integer, DefaultWeightedEdge> graph = (SimpleWeightedGraph<Integer, DefaultWeightedEdge>) objectInputStream.readObject();
         objectInputStream.close();
 
         HCS hcs = new HCS(graph);

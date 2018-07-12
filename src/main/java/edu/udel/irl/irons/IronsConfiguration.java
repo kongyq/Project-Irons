@@ -73,6 +73,8 @@ public class IronsConfiguration {
         return null;
     }
 
+    public boolean getIsHierarchyOn(){return this.config.getBoolean("irons.hierarchy.on");}
+
     public String getDisambiguator(){
         return this.config.getString("mani.disambiguator") + "Disambiguator";
     }

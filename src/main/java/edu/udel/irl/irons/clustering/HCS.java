@@ -41,7 +41,7 @@ public class HCS {
         this.similarityGraph.removeAllVertices(singletons);
 
         //find all maximally connected component
-        ConnectivityInspector inspector = new ConnectivityInspector(this.similarityGraph);
+        ConnectivityInspector<Integer, DefaultWeightedEdge> inspector = new ConnectivityInspector<>(this.similarityGraph);
 
         List<Set<Integer>> mccSets = inspector.connectedSets();
 

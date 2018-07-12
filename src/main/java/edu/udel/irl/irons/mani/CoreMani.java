@@ -48,7 +48,7 @@ public class CoreMani {
 
     private Plex plex;
     //used for save BabelNet Coins when conduct wsd.
-    private CoinSaver coinSaver;
+    private static CoinSaver coinSaver = CoinSaver.getInstance();
 
     private static final int SEPARATOR = 1000;
 
@@ -76,7 +76,8 @@ public class CoreMani {
     }
 
     public CoreMani(){
-        this.coinSaver = CoinSaver.getInstance();
+
+//        this.coinSaver = CoinSaver.getInstance();
     }
 
     /**
@@ -94,20 +95,20 @@ public class CoreMani {
 //        this.sentence2 = new SemanticGraph(parseSent(node2.getContent()));
 
         //This only for saving BabelNet coins purpose.
-        if (this.coinSaver.isContain(node1)){
-            this.sent1Senses = this.coinSaver.getSentSenses(node1);
+        if (coinSaver.isContain(node1)){
+            this.sent1Senses = coinSaver.getSentSenses(node1);
 //            System.out.println("Found1!");
         }else {
             this.sent1Senses = disambiguator.disambiguate(this.sentence1);
-            this.coinSaver.addSentSenses(node1, this.sent1Senses);
+            coinSaver.addSentSenses(node1, this.sent1Senses);
         }
 
-        if (this.coinSaver.isContain(node2)){
-            this.sent2Senses = this.coinSaver.getSentSenses(node2);
+        if (coinSaver.isContain(node2)){
+            this.sent2Senses = coinSaver.getSentSenses(node2);
 //            System.out.println("Found2!");
         }else {
             this.sent2Senses = disambiguator.disambiguate(this.sentence2);
-            this.coinSaver.addSentSenses(node2, this.sent2Senses);
+            coinSaver.addSentSenses(node2, this.sent2Senses);
         }
 
         this.wordList1 = this.initWordList();

@@ -3,12 +3,13 @@ package edu.udel.irl.irons.core;
 import edu.stanford.math.plex4.homology.barcodes.AnnotatedBarcodeCollection;
 import edu.udel.irl.irons.IronsConfiguration;
 import edu.udel.irl.irons.mani.Plex;
-import gnu.trove.impl.sync.TSynchronizedObjectDoubleMap;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -35,6 +36,7 @@ public class IroNet {
     private static final File indexFile = new File(IronsConfiguration.getInstance().getIndexPath());
     private static final File barcodeFile = new File(IronsConfiguration.getInstance().getBarcodePath());
     private static final File graphFile = new File(IronsConfiguration.getInstance().getGraphPath());
+    private static final boolean isHierarchyOn = IronsConfiguration.getInstance().getIsHierarchyOn();
 
     public IroNet(int k){
         this.k = k;
@@ -51,6 +53,7 @@ public class IroNet {
     }
 
     //for test purpose only
+    @Deprecated
     public synchronized void addNode(int nodeId){
         this.graph.addVertex(nodeId);
         this.plex.addVertex(nodeId);
@@ -88,28 +91,64 @@ public class IroNet {
         this.edgeList.remove(new TIntHashSet(new int[]{node1Id, node2Id}));
     }
 
+    public void optimizeIroNet(){
+        //delete all singletons in the irons graph
+        IntSet singletons = new IntOpenHashSet();
+
+        //get all singletons
+        for(int vertex: this.graph.vertexSet()){
+            if(this.graph.degreeOf(vertex) < 1){
+                singletons.add(vertex);
+            }
+        }
+
+        //remove all singletons
+        this.graph.removeAllVertices(singletons);
+        System.out.println(singletons);
+    }
+
+
     /** CORE:ALG: finalize the simplex stream by transfer all k-clique faces into corresponding k-simplex and add
      * them into the stream.
      *
      */
     public void finalizeIroNet(){
-        KCliqueFinder kCliqueFinder = new KCliqueFinder(this.graph, this.k);
-        Set<TIntArrayList> allKCliquesToK = kCliqueFinder.getAllCliquesToK();
-        for (TIntArrayList kClique: allKCliquesToK){
 
-            // add a epsilon value to the start time of each face, in order to separate dimensions.
-            int dimEpsilon = kClique.size() - 2 ;
+        if(isHierarchyOn) {
+            KCliqueFinder kCliqueFinder = new KCliqueFinder(this.graph, this.k);
+            Set<TIntArrayList> allKCliquesToK = kCliqueFinder.getAllCliquesToK();
+            System.out.println(allKCliquesToK.size());
+            allKCliquesToK.forEach(System.out::println);
+            int cliqueCount = 0;
 
-            TDoubleArrayList weights = new TDoubleArrayList();
-            AsSubgraph subgraph = new AsSubgraph(
-                    this.graph,
-                    Arrays.stream(kClique.toArray()).boxed().collect(Collectors.toSet()));
+            for (TIntArrayList kClique : allKCliquesToK) {
+                cliqueCount++;
+                if (cliqueCount % 1000 == 0) {
+                    System.out.format("processing %dth 1000 cliques...%n", (cliqueCount / 1000) + 1);
+                }
+                // add a epsilon value to the start time of each face, in order to separate dimensions.
+                int dimEpsilon = kClique.size() - 2;
 
-            // compute the maximum filtration value (latest appeared) of all faces.
-            subgraph.edgeSet().forEach(edge -> weights.add(subgraph.getEdgeWeight(edge)));
+//            TDoubleArrayList weights = new TDoubleArrayList();
+//            AsSubgraph<Integer, DefaultWeightedEdge> subgraph = new AsSubgraph<>(this.graph, (Set<Integer>) kClique);
+                AsSubgraph<Integer, DefaultWeightedEdge> subgraph =
+                        new AsSubgraph<Integer, DefaultWeightedEdge>(
+                                this.graph,
+                                Arrays.stream(kClique.toArray()).boxed().collect(Collectors.toSet()));
 
-            this.plex.addElement(kClique.toArray(), weights.max() + dimEpsilon);
+                // compute the maximum filtration value (latest appeared) of all faces.
+//            subgraph.edgeSet().forEach(edge -> weights.add(subgraph.getEdgeWeight(edge)));
+
+                this.plex.addElement(
+                        kClique.toArray(),
+                        subgraph
+                                .edgeSet()
+                                .stream()
+                                .mapToDouble(subgraph::getEdgeWeight)
+                                .max()
+                                .getAsDouble() + dimEpsilon);
 //            this.plex.addElement(kClique.toArray(), weights.max());
+            }
         }
 
         this.plex.finalizeStream();
