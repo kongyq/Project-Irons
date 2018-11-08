@@ -15,6 +15,16 @@ IRONS is the first experimental implementation for corpus level representation. 
 - [Persistent Homology and Topological Data Analysis Library](https://github.com/appliedtopology/javaplex/files/2196392/javaplex-processing-lib-4.3.4.zip)
 ##### BabelNet
 - [BabelNet Java Online and Offline API 3.7.1](http://babelnet.org/data/3.7/BabelNet-API-3.7.1.zip)
+  - Install BabelNet 3.7.1 to Maven repository
+  
+```shell
+#!/bin/bash
+
+mvn install:install-file -Dfile=lib/babelfy-commons-1.0.jar -DgroupId=it.uniroma1.lcl.babelfy.commmons -DartifactId=babelfy-commons -Dversion=1.0 -Dpackaging=jar
+unzip -p babelnet-api-3.7.1.jar META-INF/maven/it.uniroma1.lcl.babelnet/babelnet-api/pom.xml | grep -vP '<(scope|systemPath)>' >babelnet-api-3.7.1.pom
+mvn install:install-file -Dfile=babelnet-api-3.7.1.jar -DpomFile=babelnet-api-3.7.1.pom
+```
+
 - [BabelNet Offline Indices](https://babelnet.org/guide#HowcanIdownloadtheBabelNetindices?)
 ##### ADW
 - [ADW WordNet Word Similarity Matrix 1.0](http://lcl.uniroma1.it/adw/jar/adw.v1.0.tar.gz)
