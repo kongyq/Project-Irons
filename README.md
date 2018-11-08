@@ -1,5 +1,5 @@
 # Project-IRONS
-A research project for a novelty paradigm of document representation. (Project IRONS: Information Retrieval on Ontology Network of Sentences)
+A research project for a novelty paradigm of corpus representation. (Project IRONS: Information Retrieval on Ontology Network of Sentences)
 > **Caution! This is a technique preview version of IRONS for proposal purpose**
 
 ### What is IRONS
