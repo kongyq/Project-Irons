@@ -10,6 +10,7 @@ import edu.udel.irl.irons.util.CoreNlpUtil;
 import edu.udel.irl.irons.util.IndexReader;
 import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -120,14 +121,14 @@ public class Irons {
         HCS hcs = new HCS(graph);
         hcs.execute();
 
-        List<IntSet> clusters = hcs.getClusters();
+        List<IntList> clusters = hcs.getClusters();
 
         File clusterFile = new File(IronsConfiguration.getInstance().getClustersPath());
         clusterFile.getParentFile().mkdir();
         clusterFile.createNewFile();
         BufferedWriter writer = Files.newBufferedWriter(clusterFile.toPath());
 
-        for(IntSet cluster: clusters){
+        for(IntList cluster: clusters){
             System.out.println(cluster);
             TObjectIntHashMap<String> docFreqMap = new TObjectIntHashMap<>();
             for(int nodeId: cluster){

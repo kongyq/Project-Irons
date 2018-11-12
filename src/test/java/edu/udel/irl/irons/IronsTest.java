@@ -92,4 +92,12 @@ public class IronsTest {
         System.out.println(stopwatch.elapsed(TimeUnit.MINUTES));
     }
 
+    @Test
+    public void HCSOnlyTest() throws IOException, ClassNotFoundException {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Irons.HCSClustering();
+        stopwatch.stop();
+        System.out.println(stopwatch.elapsed(TimeUnit.MINUTES));
+    }
+
 }
