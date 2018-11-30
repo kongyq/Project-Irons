@@ -1,5 +1,7 @@
 package edu.udel.irl.irons.clustering;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jgrapht.Graph;
@@ -19,11 +21,14 @@ import java.util.Set;
 public class HCS {
 
     private Graph<Integer, DefaultWeightedEdge> similarityGraph;
-    private List<IntSet> clusters;
+    private List<IntList> clusters;
+
+    private int count;
 
     public HCS(Graph<Integer, DefaultWeightedEdge> graph){
         this.similarityGraph = graph;
         this.clusters = new ArrayList<>();
+        this.count = 0;
     }
 
     public void execute(){
@@ -45,13 +50,18 @@ public class HCS {
 
         List<Set<Integer>> mccSets = inspector.connectedSets();
 
+        System.out.println("connected component checked!");
+        System.out.println(mccSets.size());
+
         //for each mcc graph do hcs
         for(Set<Integer> mccSet: mccSets){
             AsSubgraph<Integer, DefaultWeightedEdge> mccGraph = new AsSubgraph<>(this.similarityGraph,mccSet);
 
             if(isHighlyConnected(mccGraph)){
-                this.clusters.add(new IntOpenHashSet(mccGraph.vertexSet()));
-            }else{hcs(mccGraph);}
+                this.clusters.add(new IntArrayList(mccGraph.vertexSet()));
+            }else{
+                hcs(mccGraph);
+            }
         }
     }
 
@@ -73,29 +83,41 @@ public class HCS {
 
         //recursively check is the subgraphs highly connected
         if(isHighlyConnected(subgraphA)){
-            this.clusters.add(new IntOpenHashSet(subgraphA.vertexSet()));
+            this.clusters.add(new IntArrayList(subgraphA.vertexSet()));
         }else{hcs(subgraphA);}
 
         if(isHighlyConnected(subgraphB)){
-            this.clusters.add(new IntOpenHashSet(subgraphB.vertexSet()));
+            this.clusters.add(new IntArrayList(subgraphB.vertexSet()));
         }else{hcs(subgraphB);}
     }
 
     private boolean isHighlyConnected(Graph<Integer, DefaultWeightedEdge> graph){
-        IntSet vertices = new IntOpenHashSet(graph.vertexSet());
-        int n = vertices.size();
+        this.count ++;
+//        if(this.count%100 == 0) {
+            System.out.println(count);
+//        }
+//        IntSet vertices = new IntOpenHashSet(graph.vertexSet());
+//        int n = vertices.size();
+        int n = graph.vertexSet().size();
         //cluster must have at least 3 vertices
-        if(n <=2 ){return false;}
-        int k = Integer.MAX_VALUE;
-        for(int vertex: vertices){
-            int degree = graph.degreeOf(vertex);
-            if(degree < k){
-                k = degree;
+//        if(graph.vertexSet().size() <= 2){return false;}
+        if(n <= 2){return false;}
+
+//        int k = Integer.MAX_VALUE;
+        for(int vertex: graph.vertexSet()){
+//            int degree = graph.degreeOf(vertex);
+
+            if(graph.degreeOf(vertex) <= n / 4){
+                return false;
             }
+//            if(degree < k){
+//                k = degree;
+//            }
         }
         //TODO: NEED TO CHECK
-        return (k > n / 3);
+        return true;
+//        return (k > n / 4);
     }
 
-    public List<IntSet> getClusters(){return this.clusters;}
+    public List<IntList> getClusters(){return this.clusters;}
 }
